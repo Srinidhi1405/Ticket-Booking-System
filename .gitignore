@@ -1,0 +1,24 @@
+# Dependency directories
+node_modules/
+
+# Production builds
+dist/
+dist-ssr/
+*.local
+
+# Environment variables
+.env
+.env.production
+.env.local
+
+# Databases & logs
+*.db
+*.db-journal
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,132 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  role         String        // "ADMIN", "ORGANIZER", "CUSTOMER"
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  bookings     Booking[]
+  seatHolds    SeatStatus[]
+  waitlist     Waitlist[]
+  events       Event[]
+}
+
+model Venue {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  rows      Int
+  cols      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  seats     Seat[]
+  events    Event[]
+}
+
+model Seat {
+  id           String        @id @default(uuid())
+  venueId      String
+  row          Int
+  number       Int
+  category     String        // "Premium", "Standard", etc.
+  venue        Venue         @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  seatStatuses SeatStatus[]
+  bookingItems BookingItem[]
+  offeredWaitlists Waitlist[]
+
+  @@unique([venueId, row, number])
+}
+
+model Event {
+  id           String                @id @default(uuid())
+  title        String
+  description  String
+  imageUrl     String?
+  date         DateTime
+  time         String
+  venueId      String
+  organizerId  String
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  venue        Venue                 @relation(fields: [venueId], references: [id])
+  organizer    User                  @relation(fields: [organizerId], references: [id])
+  pricings     SeatCategoryPricing[]
+  seatStatuses SeatStatus[]
+  bookings     Booking[]
+  waitlist     Waitlist[]
+}
+
+model SeatCategoryPricing {
+  id        String   @id @default(uuid())
+  eventId   String
+  category  String   // "Premium", "Standard", etc.
+  price     Float
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, category])
+}
+
+model SeatStatus {
+  id            String    @id @default(uuid())
+  eventId       String
+  seatId        String
+  status        String    // "AVAILABLE", "HELD", "BOOKED"
+  heldByUserId  String?
+  heldAt        DateTime?
+  expiresAt     DateTime?
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  seat          Seat      @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  heldByUser    User?     @relation(fields: [heldByUserId], references: [id])
+
+  @@unique([eventId, seatId])
+}
+
+model Booking {
+  id               String        @id @default(uuid())
+  eventId          String
+  userId           String
+  totalPrice       Float
+  status           String        // "PENDING", "CONFIRMED", "CANCELLED"
+  bookingReference String        @unique
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  event            Event         @relation(fields: [eventId], references: [id])
+  user             User          @relation(fields: [userId], references: [id])
+  bookingItems     BookingItem[]
+}
+
+model BookingItem {
+  id        String  @id @default(uuid())
+  bookingId String
+  seatId    String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat      Seat    @relation(fields: [seatId], references: [id])
+
+  @@unique([bookingId, seatId])
+}
+
+model Waitlist {
+  id             String    @id @default(uuid())
+  eventId        String
+  userId         String
+  category       String    // "Premium", "Standard", etc.
+  status         String    // "WAITING", "OFFERED", "COMPLETED", "EXPIRED"
+  createdAt      DateTime  @default(now())
+  priority       Int
+  offeredAt      DateTime?
+  offerExpiresAt DateTime?
+  offeredSeatId  String?
+  event          Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  offeredSeat    Seat?     @relation(fields: [offeredSeatId], references: [id])
+}
