@@ -349,3 +349,76 @@ button, input, select, textarea {
   border-color: var(--color-danger);
   color: var(--color-danger);
 }
+
+/* Responsive media queries for mobile and tablet screens */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  /* Navbar responsiveness */
+  .navbar .container {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .navbar .container > div {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem !important;
+  }
+
+  .navbar .btn {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Grid layouts collapse to single column */
+  .venues-grid,
+  .checkout-grid,
+  .organizer-dashboard-grid,
+  .event-detail-grid,
+  .booking-history-card {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  /* Mobile styling for seating map */
+  .seat-grid-container {
+    padding: 1rem !important;
+    max-width: 100%;
+  }
+
+  .seat-legend {
+    gap: 0.75rem !important;
+  }
+
+  /* Booking History responsive item */
+  .history-right-col {
+    border-left: none !important;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0 !important;
+    padding-top: 1rem !important;
+    width: 100%;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  /* Adjust buttons and spacing */
+  .btn {
+    width: 100%;
+  }
+
+  .navbar .btn, .legend-item .btn, .history-right-col .btn {
+    width: auto;
+  }
+  
+  /* Responsive tables */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
