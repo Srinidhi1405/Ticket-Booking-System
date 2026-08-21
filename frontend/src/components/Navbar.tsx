@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Ticket, Calendar, BarChart3, PlusSquare, History } from 'lucide-react';
+import { LogOut, Calendar, BarChart3, PlusSquare, History } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;

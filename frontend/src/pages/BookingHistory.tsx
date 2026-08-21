@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest } from '../context/AuthContext';
-import { Calendar, MapPin, Ticket, AlertCircle, XCircle } from 'lucide-react';
+import { Calendar, MapPin, AlertCircle, XCircle } from 'lucide-react';
 
 export const BookingHistory: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -72,7 +72,7 @@ export const BookingHistory: React.FC = () => {
             return (
               <div 
                 key={booking.id} 
-                className="card" 
+                className="card booking-history-card" 
                 style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 220px', 
@@ -80,11 +80,10 @@ export const BookingHistory: React.FC = () => {
                   opacity: isCancelled ? 0.6 : 1,
                   borderColor: isCancelled ? 'transparent' : 'var(--border-color)'
                 }}
-                className="booking-history-card"
               >
                 {/* Left Side: Booking details */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignCenter: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{booking.event.title}</h3>
                     <span style={{
                       display: 'inline-block',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { apiRequest, useAuth } from '../context/AuthContext';
-import { Calendar, MapPin, Armchair, ArrowLeft, Loader2, Users } from 'lucide-react';
+import { Calendar, MapPin, ArrowLeft, Loader2, Users } from 'lucide-react';
 
 interface Seat {
   id: string;

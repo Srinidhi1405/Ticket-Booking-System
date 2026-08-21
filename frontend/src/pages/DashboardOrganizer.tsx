@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest } from '../context/AuthContext';
-import { Calendar, Plus, BarChart3, Users, DollarSign, Armchair, PlusCircle } from 'lucide-react';
+import { Plus, BarChart3, Users, DollarSign, Armchair, PlusCircle } from 'lucide-react';
 
 export const DashboardOrganizer: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
