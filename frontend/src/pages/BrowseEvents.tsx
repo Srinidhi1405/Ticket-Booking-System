@@ -114,7 +114,7 @@ export const BrowseEvents: React.FC<BrowseEventsProps> = ({ onSelectEvent }) => 
                   fontWeight: 'bold',
                   color: 'var(--color-accent)'
                 }}>
-                  From ${standardPrice}
+                  From ₹{standardPrice}
                 </div>
               </div>
 
@@ -149,8 +149,8 @@ export const BrowseEvents: React.FC<BrowseEventsProps> = ({ onSelectEvent }) => 
 
                 <div className="flex justify-between align-center" style={{ marginTop: 'auto' }}>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    <div>Premium: <strong style={{ color: 'var(--text-primary)' }}>${premiumPrice}</strong></div>
-                    <div>Standard: <strong style={{ color: 'var(--text-primary)' }}>${standardPrice}</strong></div>
+                    <div>Premium: <strong style={{ color: 'var(--text-primary)' }}>₹{premiumPrice}</strong></div>
+                    <div>Standard: <strong style={{ color: 'var(--text-primary)' }}>₹{standardPrice}</strong></div>
                   </div>
                   <button 
                     className="btn btn-primary"

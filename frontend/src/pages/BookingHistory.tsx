@@ -124,7 +124,7 @@ export const BookingHistory: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', borderLeft: '1px solid var(--border-color)', paddingLeft: '1.5rem' }} className="history-right-col">
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Amount Paid</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-success)' }}>${booking.totalPrice.toFixed(2)}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-success)' }}>₹{booking.totalPrice.toFixed(2)}</div>
                   </div>
 
                   {isConfirmed && (

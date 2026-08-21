@@ -179,11 +179,11 @@ export const DashboardOrganizer: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">Premium Ticket Price ($)</label>
+                <label className="form-label">Premium Ticket Price (₹)</label>
                 <input type="number" step="0.01" className="form-input" value={premiumPrice} onChange={(e) => setPremiumPrice(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="form-label">Standard Ticket Price ($)</label>
+                <label className="form-label">Standard Ticket Price (₹)</label>
                 <input type="number" step="0.01" className="form-input" value={standardPrice} onChange={(e) => setStandardPrice(e.target.value)} required />
               </div>
             </div>
@@ -246,7 +246,7 @@ export const DashboardOrganizer: React.FC = () => {
                       <DollarSign size={16} style={{ color: 'var(--color-success)' }} />
                     </div>
                     <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '0.5rem', color: 'var(--color-success)' }}>
-                      ${stats.summary.revenue.toFixed(2)}
+                      ₹{stats.summary.revenue.toFixed(2)}
                     </div>
                   </div>
 
@@ -288,11 +288,11 @@ export const DashboardOrganizer: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div className="flex justify-between" style={{ fontSize: '0.9rem' }}>
                         <span>Premium Category:</span>
-                        <strong>{stats.categoryStats.Premium?.booked || 0} Sold (${(stats.categoryStats.Premium?.revenue || 0).toFixed(2)})</strong>
+                        <strong>{stats.categoryStats.Premium?.booked || 0} Sold (₹{(stats.categoryStats.Premium?.revenue || 0).toFixed(2)})</strong>
                       </div>
                       <div className="flex justify-between" style={{ fontSize: '0.9rem' }}>
                         <span>Standard Category:</span>
-                        <strong>{stats.categoryStats.Standard?.booked || 0} Sold (${(stats.categoryStats.Standard?.revenue || 0).toFixed(2)})</strong>
+                        <strong>{stats.categoryStats.Standard?.booked || 0} Sold (₹{(stats.categoryStats.Standard?.revenue || 0).toFixed(2)})</strong>
                       </div>
                     </div>
                   </div>
@@ -341,7 +341,7 @@ export const DashboardOrganizer: React.FC = () => {
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.customerEmail}</div>
                             </td>
                             <td style={{ padding: '0.75rem' }}>{b.seats}</td>
-                            <td style={{ padding: '0.75rem', fontWeight: 'bold', color: 'var(--color-success)' }}>${b.price.toFixed(2)}</td>
+                            <td style={{ padding: '0.75rem', fontWeight: 'bold', color: 'var(--color-success)' }}>₹{b.price.toFixed(2)}</td>
                             <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>
                               {new Date(b.createdAt).toLocaleDateString()}
                             </td>

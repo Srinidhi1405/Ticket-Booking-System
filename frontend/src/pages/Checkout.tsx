@@ -162,7 +162,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <span>
                     Row {String.fromCharCode(64 + seat.row)} - Col {seat.number} ({seat.category})
                   </span>
-                  <span style={{ fontWeight: 'bold' }}>${price.toFixed(2)}</span>
+                  <span style={{ fontWeight: 'bold' }}>₹{price.toFixed(2)}</span>
                 </div>
               );
             })}
@@ -170,7 +170,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
           <div className="flex justify-between align-center" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', fontWeight: 800, fontSize: '1.2rem' }}>
             <span>Total:</span>
-            <span style={{ color: 'var(--color-accent)' }}>${totalAmount.toFixed(2)}</span>
+            <span style={{ color: 'var(--color-accent)' }}>₹{totalAmount.toFixed(2)}</span>
           </div>
         </div>
 
@@ -221,7 +221,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
             onClick={handleConfirmBooking}
             disabled={submitting || seats.length === 0}
           >
-            {submitting ? 'Confirming booking...' : `Pay & Book $${totalAmount.toFixed(2)}`}
+            {submitting ? 'Confirming booking...' : `Pay & Book ₹${totalAmount.toFixed(2)}`}
           </button>
         </div>
       </div>

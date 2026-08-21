@@ -183,7 +183,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               onClick={() => handleDemoLogin('customer1@gmail.com')}
               disabled={loading}
             >
-              👤 Customer 1
+              👤 Srinidhi
             </button>
             <button
               className="btn btn-secondary"
@@ -191,7 +191,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               onClick={() => handleDemoLogin('customer2@gmail.com')}
               disabled={loading}
             >
-              👤 Customer 2
+              👤 Srii
             </button>
             <button
               className="btn btn-secondary"

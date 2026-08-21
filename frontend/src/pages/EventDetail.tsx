@@ -288,11 +288,11 @@ export const EventDetail: React.FC<EventDetailProps> = ({ eventId, onBack, onHol
             <div className="seat-legend">
               <div className="legend-item">
                 <div className="legend-dot" style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', border: '1px solid var(--color-success)' }} />
-                <span>Standard Available (${standardPrice})</span>
+                <span>Standard Available (₹{standardPrice})</span>
               </div>
               <div className="legend-item">
                 <div className="legend-dot" style={{ backgroundColor: 'rgba(99, 102, 241, 0.2)', border: '1px solid var(--color-primary)' }} />
-                <span>Premium Available (${premiumPrice})</span>
+                <span>Premium Available (₹{premiumPrice})</span>
               </div>
               <div className="legend-item">
                 <div className="legend-dot" style={{ backgroundColor: 'var(--color-accent)' }} />
@@ -345,7 +345,7 @@ export const EventDetail: React.FC<EventDetailProps> = ({ eventId, onBack, onHol
             <div>
               <div className="flex justify-between align-center" style={{ marginBottom: '1.5rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Selected {selectedSeats.length} Seats:</span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>${totalSelectedPrice.toFixed(2)}</span>
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>₹{totalSelectedPrice.toFixed(2)}</span>
               </div>
               <button 
                 className="btn btn-accent" 
