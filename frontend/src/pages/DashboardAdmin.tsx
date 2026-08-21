@@ -10,6 +10,7 @@ export const DashboardAdmin: React.FC = () => {
   const [success, setSuccess] = useState('');
 
   // Form Fields
+  const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [rows, setRows] = useState('6');
@@ -33,6 +34,18 @@ export const DashboardAdmin: React.FC = () => {
     fetchVenues();
   }, []);
 
+  const handleEditClick = (venue: any) => {
+    setEditingVenueId(venue.id);
+    setName(venue.name);
+    setAddress(venue.address);
+    setRows(venue.rows.toString());
+    setCols(venue.cols.toString());
+    setPremiumRows('2'); // Default estimation
+    setShowForm(true);
+    setError('');
+    setSuccess('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -40,27 +53,42 @@ export const DashboardAdmin: React.FC = () => {
     setSubmitting(true);
 
     try {
-      await apiRequest('/api/venues', {
-        method: 'POST',
-        body: JSON.stringify({
-          name,
-          address,
-          rows: parseInt(rows),
-          cols: parseInt(cols),
-          premiumRows: parseInt(premiumRows),
-        }),
-      });
+      if (editingVenueId) {
+        await apiRequest(`/api/venues/${editingVenueId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name,
+            address,
+            rows: parseInt(rows),
+            cols: parseInt(cols),
+            premiumRows: parseInt(premiumRows),
+          }),
+        });
+        setSuccess('Venue updated successfully!');
+      } else {
+        await apiRequest('/api/venues', {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            address,
+            rows: parseInt(rows),
+            cols: parseInt(cols),
+            premiumRows: parseInt(premiumRows),
+          }),
+        });
+        setSuccess('Venue created successfully! Physical seats generated.');
+      }
 
-      setSuccess('Venue created successfully! Physical seats generated.');
       setName('');
       setAddress('');
       setRows('6');
       setCols('8');
       setPremiumRows('2');
       setShowForm(false);
+      setEditingVenueId(null);
       fetchVenues();
     } catch (err: any) {
-      setError(err.message || 'Failed to create venue.');
+      setError(err.message || 'Failed to save venue.');
     } finally {
       setSubmitting(false);
     }
@@ -77,6 +105,14 @@ export const DashboardAdmin: React.FC = () => {
         <button 
           className="btn btn-primary"
           onClick={() => {
+            if (showForm) {
+              setEditingVenueId(null);
+              setName('');
+              setAddress('');
+              setRows('6');
+              setCols('8');
+              setPremiumRows('2');
+            }
             setShowForm(!showForm);
             setError('');
             setSuccess('');
@@ -90,9 +126,11 @@ export const DashboardAdmin: React.FC = () => {
       {success && <div className="alert alert-success" style={{ marginBottom: '1.5rem' }}>{success}</div>}
 
       {showForm ? (
-        /* Create Venue Form */
+        /* Create/Edit Venue Form */
         <div className="card" style={{ maxWidth: '550px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Add New Venue</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+            {editingVenueId ? 'Edit Venue Details' : 'Add New Venue'}
+          </h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Venue Name</label>
@@ -124,7 +162,7 @@ export const DashboardAdmin: React.FC = () => {
             </p>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', height: '48px' }} disabled={submitting}>
-              {submitting ? 'Creating venue...' : 'Generate Venue Layout'}
+              {submitting ? 'Saving...' : editingVenueId ? 'Save Venue Details' : 'Generate Venue Layout'}
             </button>
           </form>
         </div>
@@ -141,12 +179,21 @@ export const DashboardAdmin: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }} className="venues-grid">
               {venues.map((venue) => (
                 <div key={venue.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem' }}>{venue.name}</h3>
-                    <div className="flex align-center gap-1" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                      <MapPin size={14} style={{ color: 'var(--color-primary)' }} />
-                      <span>{venue.address}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem' }}>{venue.name}</h3>
+                      <div className="flex align-center gap-1" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <MapPin size={14} style={{ color: 'var(--color-primary)' }} />
+                        <span>{venue.address}</span>
+                      </div>
                     </div>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      onClick={() => handleEditClick(venue)}
+                    >
+                      Edit
+                    </button>
                   </div>
 
                   <div style={{ display: 'flex', gap: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: 'auto', fontSize: '0.875rem', color: 'var(--text-muted)' }}>

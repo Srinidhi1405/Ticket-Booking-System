@@ -39,8 +39,9 @@ app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 app.get('/api/auth/profile', authenticateJWT, authController.getProfile);
 
-// Venues (Admin only for creation, authenticated for fetching)
+// Venues (Admin only for creation/updating, authenticated for fetching)
 app.post('/api/venues', authenticateJWT, requireRole(['ADMIN']), venueController.createVenue);
+app.put('/api/venues/:id', authenticateJWT, requireRole(['ADMIN']), venueController.updateVenue);
 app.get('/api/venues', authenticateJWT, venueController.getVenues);
 
 // Events
