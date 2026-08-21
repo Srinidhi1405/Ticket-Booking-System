@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import * as http from 'http';
 import * as url from 'url';
+import path from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
 import * as dotenv from 'dotenv';
 
@@ -28,7 +29,8 @@ app.use(cors());
 app.use(express.json());
 
 // Serving frontend in production
-// app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDistPath));
 
 // Define Routes
 // Auth
@@ -60,6 +62,14 @@ app.get('/api/waitlist/status/:eventId', authenticateJWT, waitlistController.get
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('API Error:', err);
   res.status(500).json({ error: 'Internal server error.' });
+});
+
+// Catch-all route to serve React app for client-side routing
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/ws')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // Create HTTP Server
