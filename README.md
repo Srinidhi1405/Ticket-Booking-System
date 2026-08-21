@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Ticketify - High-Demand Ticket Booking System
 
 Ticketify is a full-stack ticket booking system for high-demand movies and concerts built with Express, React (Vite), and Prisma (SQLite). It implements concurrent seat locks, real-time map synchronization via WebSockets, automatic waitlist reallocation on cancellations, and QR-code ticket delivery.
