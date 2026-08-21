@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ticketify-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: ticketify
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ticketify-app
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      JWT_SECRET: supersecretjwtkey-change-in-production
+      DATABASE_URL: postgresql://postgres:password123@db:5432/ticketify?schema=public
+      APP_URL: http://localhost:5000
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

@@ -70,6 +70,20 @@ npm run dev
 * **Frontend Server**: http://localhost:3000
 * **Backend API / WebSocket Server**: http://localhost:5000
 
+### 5. Running the Application via Docker (PostgreSQL)
+Alternatively, you can run the entire application stack (including a PostgreSQL database) inside containers using Docker Compose.
+
+Ensure you have **Docker** and **Docker Compose** installed, then run from the project root:
+```bash
+docker-compose up --build
+```
+This command:
+1. Spins up a PostgreSQL database container.
+2. Compiles your React frontend SPA.
+3. Builds the Express backend server.
+4. Auto-applies schema migrations and seeds the PostgreSQL database.
+5. Serves the full application (frontend and API) on **http://localhost:5000**.
+
 ---
 
 ## Demo Credentials
