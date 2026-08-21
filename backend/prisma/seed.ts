@@ -4,7 +4,15 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding database...');
+  // Clear existing records to prevent unique constraints issues on re-seeding
+  await prisma.waitlist.deleteMany({});
+  await prisma.bookingItem.deleteMany({});
+  await prisma.booking.deleteMany({});
+  await prisma.seatStatus.deleteMany({});
+  await prisma.seatCategoryPricing.deleteMany({});
+  await prisma.event.deleteMany({});
+  await prisma.seat.deleteMany({});
+  await prisma.venue.deleteMany({});
 
   // Create Users
   const passwordHash = bcrypt.hashSync('password123', 10);
