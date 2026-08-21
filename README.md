@@ -1,222 +1,219 @@
-# Ticketify - High-Demand Ticket Booking System
+# 🎟️ Ticketify — Premium Ticket Booking System
 
-Ticketify is a full-stack ticket booking system for high-demand movies and concerts built with Express, React (Vite), and Prisma (SQLite). It implements concurrent seat locks, real-time map synchronization via WebSockets, automatic waitlist reallocation on cancellations, and QR-code ticket delivery.
+**Ticketify** is a full-stack ticket booking platform designed for high-demand events such as concerts, movies, and live shows.
 
----
+The system provides **real-time seat availability, temporary seat locking, concurrent booking protection, automated waitlist allocation, QR-code tickets, email notifications, and role-based dashboards**.
 
-## Technical Architecture
-
-* **Backend**: Express.js with TypeScript and WS (WebSockets)
-* **Frontend**: React SPA, TypeScript, Vite, Vanilla CSS
-* **Database**: Prisma ORM with SQLite
-* **Email & QR Codes**: Nodemailer with Ethereal Email auto-provisioning; QRCode library
-* **Concurrency**: Pessimistic/serializable transactions via Prisma on SQLite database locks
+🔗 **Live Application:** https://ticket-booking-system-rp93.onrender.com/
 
 ---
 
-## Project Structure
+## ✨ Features
 
-```text
-ticket-booking-system/
-├── backend/
-│   ├── prisma/             # Schema definitions and seed scripts
-│   ├── src/
-│   │   ├── config/         # Prisma client and Nodemailer transports
-│   │   ├── controllers/    # API endpoint request-response routing
-│   │   ├── middleware/     # JWT authentication and authorization
-│   │   ├── services/       # Concurrency hold, waitlist reallocations, email delivery
-│   │   └── index.ts        # Express entry point and WebSocket server
-│   └── tsconfig.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # Visual seat maps, timers, headers
-│   │   ├── context/        # Auth state and API fetch wrappers
-│   │   ├── pages/          # Login, browsing, checkout, dashboards
-│   │   └── main.tsx
-│   └── tsconfig.json
-├── SYSTEM_DESIGN.md        # Technical design details
-└── package.json            # Root monorepo scripts
-```
+### 👤 Role-Based Authentication
 
----
+Ticketify supports multiple user roles:
 
-## Setup Guide
-
-### 1. Prerequisites
-Ensure you have **Node.js (v20+)** and **npm** installed.
-
-### 2. Installation
-From the project root directory, run:
-```bash
-npm run install:all
-```
-This single command installs the required npm dependencies in the root, `backend`, and `frontend` folders.
-
-### 3. Database Initialization & Seeding
-Set up the SQLite database and seed initial mock users and event data:
-```bash
-cd backend
-npx prisma db push
-npx ts-node prisma/seed.ts
-cd ..
-```
-*This seeds the system with demo logins for Customers, Organizers, and Admins.*
-
-### 4. Running the Application Locally
-Run the backend API and frontend Vite servers concurrently from the root directory:
-```bash
-npm run dev
-```
-* **Frontend Server**: http://localhost:3000
-* **Backend API / WebSocket Server**: http://localhost:5000
-
-### 5. Running the Application via Docker (PostgreSQL)
-Alternatively, you can run the entire application stack (including a PostgreSQL database) inside containers using Docker Compose.
-
-Ensure you have **Docker** and **Docker Compose** installed, then run from the project root:
-```bash
-docker-compose up --build
-```
-This command:
-1. Spins up a PostgreSQL database container.
-2. Compiles your React frontend SPA.
-3. Builds the Express backend server.
-4. Auto-applies schema migrations and seeds the PostgreSQL database.
-5. Serves the full application (frontend and API) on **http://localhost:5000**.
-
----
-
-## Demo Credentials
-The login page features "Quick Demo Login" buttons to easily sign in with these pre-seeded roles:
-
-| Role | Email | Password | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@ticketify.com` | `password123` | Create new Venues with custom seat layouts |
-| **Organizer** | `organizer@ticketify.com` | `password123` | Create Events, adjust ticket prices, and view sales/revenue charts |
-| **Customer 1** | `customer1@gmail.com` | `password123` | Browse events, hold/book seats, join waitlist, cancel bookings |
-| **Customer 2** | `customer2@gmail.com` | `password123` | Test real-time seat lock conflicts and waitlist escalations side-by-side |
-
----
-
-## API Documentation
-
-### Authentication
-* `POST /api/auth/register` - Create user (roles: `CUSTOMER`, `ORGANIZER`, `ADMIN`).
-* `POST /api/auth/login` - Sign in and receive JWT.
-* `GET /api/auth/profile` - Fetch profile from JWT payload.
-
-### Venues
-* `POST /api/venues` - Create a venue layout (Admin only).
-* `GET /api/venues` - Fetch all venues.
-
-### Events
-* `POST /api/events` - Create event listing and category pricings (Organizer/Admin only).
-* `GET /api/events` - List events with venue descriptions.
-* `GET /api/events/:id` - Fetch event details and seat map statuses.
-
-### Bookings & Holds
-* `POST /api/bookings/hold` - Place a time-limited checkout hold on seats (Customer only).
-* `POST /api/bookings/confirm` - Complete payment and issue tickets (Customer only).
-* `POST /api/bookings/cancel/:bookingId` - Cancel booking and trigger waitlist reallocation (Customer/Organizer/Admin).
-* `GET /api/bookings/history` - User's booking history.
-* `GET /api/bookings/stats/:eventId` - Event analytics ledger and summaries (Organizer/Admin only).
-
-### Waitlist
-* `POST /api/waitlist/join` - Join waitlist for standard or premium category on sold-out show.
-* `GET /api/waitlist/status/:eventId` - Fetch waitlist position or claim details.
-
----
-
-## Verification & Concurrency Tests
-
-To run the automated concurrency integration test:
-=======
-# 🎟️ Ticketify — High-Demand Ticket Booking System
-
-Ticketify is a full-stack ticket booking platform designed to handle **high-demand events** such as concerts and movies.
-
-The system focuses on solving real-world ticketing challenges including **concurrent seat booking, temporary seat holds, booking expiration, automatic waitlist allocation, real-time seat synchronization, and digital ticket delivery through QR codes**.
-
----
-
-## 🚀 Key Features
-
-### 👤 Role-Based Access
-
-The system supports three user roles:
-
-* **Customer** — Browse events, select seats, book tickets, cancel bookings, and join waitlists.
-* **Organizer** — Create and manage events, configure ticket pricing, and view booking analytics.
-* **Admin** — Manage venues and seat layouts.
+* 👨‍💼 **Admin** — Manage venues and seat layouts
+* 🎤 **Organizer** — Create events, configure pricing, and monitor bookings
+* 🎟️ **Customer** — Browse events, select seats, book tickets, cancel bookings, and join waitlists
 
 ### 💺 Real-Time Seat Booking
 
 * Interactive seat map
-* Live seat availability
-* Temporary seat holds during checkout
-* Automatic release of expired holds
+* Real-time seat availability
+* Temporary seat holds
+* Automatic expiration of unused holds
 * Prevention of double booking
+* Booking confirmation workflow
 
 ### 🔒 Concurrent Booking Protection
 
-Ticketify is designed for high-demand scenarios where multiple users may attempt to book the same seat simultaneously.
+Ticketify is designed to handle multiple users attempting to reserve the same seat simultaneously.
 
-The booking service uses database transactions to ensure that:
+Database transactions ensure that:
 
-* Only one customer can successfully hold a seat.
-* Conflicting requests are rejected.
-* Seat state transitions remain consistent.
-* Partial bookings are rolled back when validation fails.
+* A seat cannot be successfully booked by multiple users.
+* Conflicting booking requests are rejected.
+* Seat states remain consistent.
+* Failed transactions are rolled back.
 
-A dedicated concurrency test is included to simulate multiple users attempting to reserve the same seat simultaneously.
+### ⏱️ Temporary Seat Holds
 
-### ⏱️ Time-Limited Seat Holds
+When a customer selects a seat, it is temporarily locked.
 
-Seats selected during checkout are temporarily held for a limited period.
+If the customer does not complete the booking within the allowed time:
 
-The background scheduler:
-
-1. Detects expired holds.
-2. Releases the seats.
-3. Updates their availability.
-4. Triggers the waitlist allocation process when required.
+```text
+Seat Hold
+   ↓
+Timer Expires
+   ↓
+Seat Released
+   ↓
+Seat Available Again
+```
 
 ### 📋 Automated Waitlist
 
-When an event or seat category is sold out, customers can join a waitlist.
+When an event or category is sold out, customers can join the waitlist.
 
 When a seat becomes available:
 
-1. The next eligible customer is selected.
-2. The seat is temporarily assigned to them.
-3. A limited-time offer is created.
-4. An email notification is sent.
-5. If the customer does not complete the booking, the offer expires.
-6. The seat is automatically offered to the next customer.
+```text
+Seat Released
+      ↓
+Next Eligible Customer
+      ↓
+Temporary Offer
+      ↓
+Customer Accepts
+      ↓
+Booking Confirmed
+```
+
+If the offer expires, the seat is automatically offered to the next eligible customer.
+
+### 🎫 Digital QR Tickets
+
+Confirmed bookings generate digital ticket information with QR-code support.
+
+Customers can use the generated ticket for event verification.
 
 ### 📧 Email Notifications
 
-Nodemailer is used to handle email delivery for ticket and waitlist notifications.
+The backend supports email notifications for:
 
-Ethereal Email can be automatically provisioned for development and testing.
-
-### 🎫 QR Code Tickets
-
-Confirmed bookings generate QR-code ticket information that can be delivered to the customer through email.
+* Booking confirmation
+* Ticket delivery
+* Waitlist offers
+* Waitlist updates
 
 ### 📊 Dashboards
 
-The application includes dedicated dashboards for:
+Different dashboards are provided based on user roles.
 
-* Customers
-* Organizers
-* Administrators
+**Customer Dashboard**
 
-Organizers can view event-level booking and revenue information.
+* Upcoming bookings
+* Booking history
+* Tickets
+* Waitlist status
+
+**Organizer Dashboard**
+
+* Event management
+* Ticket sales
+* Revenue information
+* Booking statistics
+
+**Admin Dashboard**
+
+* Venue management
+* Seat configuration
+* System administration
+              
+                 
 
 ---
 
-## 📂 Project Structure
+# 🔄 Booking Flow
+
+```text
+Browse Events
+      │
+      ▼
+Select Event
+      │
+      ▼
+Select Seats
+      │
+      ▼
+Temporary Seat Hold
+      │
+      ├──────────────► Hold Expires
+      │                      │
+      │                      ▼
+      │                Seat Released
+      │
+      ▼
+Checkout
+      │
+      ▼
+Confirm Booking
+      │
+      ▼
+Generate Ticket
+      │
+      ▼
+Generate QR Code
+      │
+      ▼
+Send Confirmation
+```
+
+---
+
+# 🔐 Concurrency Handling
+
+One of the main objectives of Ticketify is preventing **double booking during high-demand events**.
+
+For example, if multiple users attempt to reserve the same seat:
+
+```text
+User 1 ─────┐
+User 2 ─────┤
+User 3 ─────┼──► Same Seat
+User 4 ─────┤
+User 5 ─────┘
+                │
+                ▼
+        Database Transaction
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+   One succeeds     Others rejected
+        │
+        ▼
+   Seat Reserved
+```
+
+This approach helps maintain consistent seat availability even when multiple booking requests arrive simultaneously.
+
+---
+
+# 📋 Waitlist Architecture
+
+```text
+             Event Sold Out
+                   │
+                   ▼
+             Join Waitlist
+                   │
+                   ▼
+             Queue Customer
+                   │
+                   ▼
+             Seat Released
+                   │
+                   ▼
+        Select Next Eligible User
+                   │
+                   ▼
+          Create Limited Offer
+                   │
+            ┌──────┴──────┐
+            │             │
+            ▼             ▼
+        Accepted       Expired
+            │             │
+            ▼             ▼
+      Confirm Booking   Next User
+```
+
+---
+
+# 📁 Project Structure
 
 ```text
 ticket-booking-system/
@@ -244,12 +241,13 @@ ticket-booking-system/
 ├── SYSTEM_DESIGN.md
 ├── package.json
 └── README.md
-
 ```
 
-## 🔐 Demo Accounts
+---
 
-The database seed script provides demo accounts for testing.
+# 🔑 Demo Accounts
+
+For local development, the seeded database provides demo users.
 
 | Role      | Email                     | Password      |
 | --------- | ------------------------- | ------------- |
@@ -258,13 +256,13 @@ The database seed script provides demo accounts for testing.
 | Customer  | `customer1@gmail.com`     | `password123` |
 | Customer  | `customer2@gmail.com`     | `password123` |
 
-The two customer accounts can be used to test concurrent booking and seat-locking behaviour.
+> Change demo credentials before using the application in a production environment.
 
 ---
 
-## 🔌 API Endpoints
+# 🔌 API Overview
 
-### Authentication
+## Authentication
 
 ```text
 POST /api/auth/register
@@ -272,14 +270,7 @@ POST /api/auth/login
 GET  /api/auth/profile
 ```
 
-### Venues
-
-```text
-POST /api/venues
-GET  /api/venues
-```
-
-### Events
+## Events
 
 ```text
 POST /api/events
@@ -287,7 +278,14 @@ GET  /api/events
 GET  /api/events/:id
 ```
 
-### Bookings
+## Venues
+
+```text
+POST /api/venues
+GET  /api/venues
+```
+
+## Bookings
 
 ```text
 POST /api/bookings/hold
@@ -297,7 +295,7 @@ GET  /api/bookings/history
 GET  /api/bookings/stats/:eventId
 ```
 
-### Waitlist
+## Waitlist
 
 ```text
 POST /api/waitlist/join
@@ -306,195 +304,67 @@ GET  /api/waitlist/status/:eventId
 
 ---
 
-## 🔄 Booking Flow
+# 🧪 Concurrency Testing
 
-```text
-Browse Events
-      │
-      ▼
-Select Event
-      │
-      ▼
-Select Seats
-      │
-      ▼
-Temporary Seat Hold
-      │
-      ├──── Hold expires ────► Release Seat
-      │
-      ▼
-Checkout
-      │
-      ▼
-Confirm Booking
-      │
-      ▼
-Generate Ticket
-      │
-      ▼
-Generate QR Code
-      │
-      ▼
-Send Ticket Email
-```
+The project includes a concurrency test to simulate multiple users attempting to reserve the same seat.
 
----
+Example:
 
-## 📋 Waitlist Flow
-
-```text
-Event / Category Sold Out
-          │
-          ▼
-     Join Waitlist
-          │
-          ▼
-    Customer Queued
-          │
-          ▼
-     Seat Released
-          │
-          ▼
-Next Customer Selected
-          │
-          ▼
-    Limited-Time Offer
-          │
-       ┌──┴──┐
-       │     │
-    Accept  Expire
-       │     │
-       ▼     ▼
-   Booking  Next User
-   Confirmed  Offered
-```
-
----
-
-## 🔒 Concurrency Testing
-
-A dedicated concurrency test is available in:
-
-```text
-backend/src/test-concurrency.ts
-```
-
-Run it using:
-
->>>>>>> 84c55b3e44d9b2eaa2d5db193e105ae7665d7d86
 ```bash
 cd backend
+
 npx ts-node src/test-concurrency.ts
 ```
-<<<<<<< HEAD
-This script spawns 5 concurrent customers attempting to lock the exact same seat simultaneously. It asserts that exactly one request succeeds and the other 4 are blocked, proving our transaction isolation locks function correctly.
-=======
 
-The test simulates multiple customers attempting to hold the **same seat at the same time**.
+The test demonstrates how the booking system handles simultaneous requests for a single seat.
 
-Expected behaviour:
+Expected concept:
 
 ```text
-5 concurrent booking attempts
-          │
-          ▼
-    Same seat requested
-          │
-          ▼
- ┌─────────────────────┐
- │ Transaction control │
- └──────────┬──────────┘
-            │
-            ▼
-   1 request succeeds
-   4 requests rejected
-```
-
-This demonstrates the system's protection against double booking and race conditions.
-
----
-
-## 🧠 Database Design
-
-The main entities include:
-
-```text
-User
- │
- ├── Booking
- ├── SeatStatus
- ├── Waitlist
- └── Event
-
-Venue
- │
- └── Seat
+Multiple Requests
        │
-       ├── SeatStatus
-       └── BookingItem
-
-Event
- │
- ├── SeatCategoryPricing
- ├── SeatStatus
- ├── Booking
- └── Waitlist
+       ▼
+Same Seat
+       │
+       ▼
+Transaction Handling
+       │
+       ├──► Request 1 → SUCCESS
+       │
+       ├──► Request 2 → REJECTED
+       ├──► Request 3 → REJECTED
+       ├──► Request 4 → REJECTED
+       └──► Request 5 → REJECTED
 ```
-
-The database is managed using **Prisma ORM** with SQLite for local development.
 
 ---
 
-## ⏱️ Background Scheduler
+# ⏰ Background Scheduler
 
-Ticketify includes an in-memory scheduler that periodically checks for:
+Ticketify includes background processing for time-sensitive booking operations.
+
+The scheduler handles:
 
 * Expired seat holds
 * Expired waitlist offers
+* Seat release
+* Waitlist reallocation
 
-Expired seats are released automatically, while available seats can trigger the waitlist reallocation process.
-
----
-
-## 🔮 Future Improvements
-
-Potential improvements include:
-
-* PostgreSQL production deployment
-* Redis-based distributed seat locking
-* Redis/WebSocket-based scalable real-time synchronization
-* Payment gateway integration
-* Docker deployment
-* Cloud database support
-* Kubernetes deployment
-* Admin analytics dashboard
-* Ticket QR-code verification
-* Push notifications
-* Event search and filtering
-* Production-grade distributed job queues
+This allows the system to automatically recover seats that were temporarily reserved but never purchased.
 
 ---
 
-## 📌 Project Highlights
+# 🔮 Future Enhancements
 
-This project demonstrates practical implementation of:
-
-* Full-stack web development
-* REST API design
-* React application development
-* TypeScript
-* Database modelling
-* Prisma ORM
-* JWT authentication
-* Role-based authorization
-* WebSockets
-* Transaction management
-* Concurrency handling
-* Seat reservation systems
-* Waitlist algorithms
-* Background scheduling
-* QR-code generation
-* Email automation
-
----
->>>>>>> 84c55b3e44d9b2eaa2d5db193e105ae7665d7d86
+*  Payment gateway integration
+*  PostgreSQL production database
+*  Redis distributed locking
+*  Docker deployment
+*  Cloud deployment
+*  Push notifications
+*  Event search and filtering
+*  Advanced analytics
+*  QR-code ticket verification
+*  Enhanced security and rate limiting
+*  Improved mobile responsiveness
+*  Distributed WebSocket infrastructure
