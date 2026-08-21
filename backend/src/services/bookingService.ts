@@ -17,63 +17,38 @@ function generateBookingRef(): string {
 
 export async function holdSeats(userId: string, eventId: string, seatIds: string[], ttlMinutes: number = 10) {
   return await prisma.$transaction(async (tx) => {
-    // 1. Fetch current status of all requested seats
-    const seatStatuses = await tx.seatStatus.findMany({
-      where: {
-        eventId,
-        seatId: { in: seatIds },
-      },
-      include: {
-        seat: true,
-      },
-    });
-
-    if (seatStatuses.length !== seatIds.length) {
-      throw new Error('Some of the selected seats do not exist for this event.');
-    }
-
     const now = new Date();
     const expiresAt = new Date(now.getTime() + ttlMinutes * 60 * 1000);
 
-    // 2. Validate availability
-    for (const statusRecord of seatStatuses) {
-      const isAvailable = statusRecord.status === 'AVAILABLE';
-      const isExpiredHold =
-        statusRecord.status === 'HELD' &&
-        statusRecord.expiresAt &&
-        statusRecord.expiresAt < now;
+    const result = await tx.seatStatus.updateMany({
+      where: {
+        eventId,
+        seatId: { in: seatIds },
+        OR: [
+          { status: 'AVAILABLE' },
+          {
+            status: 'HELD',
+            expiresAt: { lt: now },
+          },
+          {
+            status: 'HELD',
+            heldByUserId: userId,
+          },
+        ],
+      },
+      data: {
+        status: 'HELD',
+        heldByUserId: userId,
+        heldAt: now,
+        expiresAt,
+      },
+    });
 
-      // Special case: If the seat is held by the CURRENT user, let them re-hold it (refresh timer)
-      const isHeldBySelf =
-        statusRecord.status === 'HELD' && statusRecord.heldByUserId === userId;
-
-      if (!isAvailable && !isExpiredHold && !isHeldBySelf) {
-        throw new Error(
-          `Seat Row ${statusRecord.seat.row}, Col ${statusRecord.seat.number} is already booked or held by another customer.`
-        );
-      }
+    if (result.count !== seatIds.length) {
+      throw new Error('Some of the selected seats are already booked or held by another customer.');
     }
 
-    // 3. Update status to HELD
-    const updatedStatuses = [];
     for (const seatId of seatIds) {
-      const updated = await tx.seatStatus.update({
-        where: {
-          eventId_seatId: { eventId, seatId },
-        },
-        data: {
-          status: 'HELD',
-          heldByUserId: userId,
-          heldAt: now,
-          expiresAt,
-        },
-        include: {
-          seat: true,
-        },
-      });
-      updatedStatuses.push(updated);
-
-      // Emit event for real-time broadcast
       bookingEvents.emit('seatChange', {
         eventId,
         seatId,
@@ -83,50 +58,57 @@ export async function holdSeats(userId: string, eventId: string, seatIds: string
       });
     }
 
-    return updatedStatuses;
+    return seatIds.map(seatId => ({
+      eventId,
+      seatId,
+      status: 'HELD',
+      heldByUserId: userId,
+      expiresAt,
+    }));
   });
 }
 
 export async function confirmBooking(userId: string, eventId: string, seatIds: string[]) {
   const booking = await prisma.$transaction(async (tx) => {
-    // 1. Double check holds are still valid for this user
-    const seatStatuses = await tx.seatStatus.findMany({
+    const now = new Date();
+
+    const result = await tx.seatStatus.updateMany({
       where: {
         eventId,
         seatId: { in: seatIds },
         status: 'HELD',
         heldByUserId: userId,
+        expiresAt: { gte: now },
       },
-      include: {
-        seat: true,
+      data: {
+        status: 'BOOKED',
+        heldByUserId: null,
+        heldAt: null,
+        expiresAt: null,
       },
     });
 
-    const now = new Date();
-    // Validate that we found all seats and none of them are expired
-    const allValid =
-      seatStatuses.length === seatIds.length &&
-      seatStatuses.every((s) => s.expiresAt && s.expiresAt >= now);
-
-    if (!allValid) {
+    if (result.count !== seatIds.length) {
       throw new Error('Hold expired or invalid. Please select seats and try again.');
     }
 
-    // 2. Fetch seat prices to calculate total
+    const seats = await tx.seat.findMany({
+      where: { id: { in: seatIds } },
+    });
+
     const pricings = await tx.seatCategoryPricing.findMany({
       where: { eventId },
     });
 
     let totalPrice = 0;
-    for (const statusRecord of seatStatuses) {
-      const pricing = pricings.find((p) => p.category === statusRecord.seat.category);
+    for (const seat of seats) {
+      const pricing = pricings.find((p) => p.category === seat.category);
       if (!pricing) {
-        throw new Error(`Pricing not found for category: ${statusRecord.seat.category}`);
+        throw new Error(`Pricing not found for category: ${seat.category}`);
       }
       totalPrice += pricing.price;
     }
 
-    // 3. Create booking
     const bookingRef = generateBookingRef();
     const newBooking = await tx.booking.create({
       data: {
@@ -145,21 +127,7 @@ export async function confirmBooking(userId: string, eventId: string, seatIds: s
       },
     });
 
-    // 4. Update SeatStatus to BOOKED
     for (const seatId of seatIds) {
-      await tx.seatStatus.update({
-        where: {
-          eventId_seatId: { eventId, seatId },
-        },
-        data: {
-          status: 'BOOKED',
-          heldByUserId: null,
-          heldAt: null,
-          expiresAt: null,
-        },
-      });
-
-      // Emit event for real-time broadcast
       bookingEvents.emit('seatChange', {
         eventId,
         seatId,
@@ -169,7 +137,6 @@ export async function confirmBooking(userId: string, eventId: string, seatIds: s
       });
     }
 
-    // 5. If this user had waitlist entries for this event that are offered or waiting, resolve them
     await tx.waitlist.updateMany({
       where: {
         eventId,

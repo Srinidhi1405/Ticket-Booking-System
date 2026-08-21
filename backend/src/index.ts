@@ -29,19 +29,9 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Serving frontend in production conditionally
+// Serving frontend in production
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
-const isStaticEnabled = fs.existsSync(path.join(frontendDistPath, 'index.html'));
-
-if (isStaticEnabled) {
-  console.log('Serving frontend static files from:', frontendDistPath);
-  app.use(express.static(frontendDistPath));
-} else {
-  console.log('Static serving disabled. Backend-only mode.');
-  app.get('/', (req, res) => {
-    res.send('⚡ Ticketify Backend API is running.');
-  });
-}
+app.use(express.static(frontendDistPath));
 
 // Define Routes
 // Auth
@@ -80,11 +70,7 @@ app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/ws')) {
     return next();
   }
-  if (isStaticEnabled) {
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
-  } else {
-    res.status(404).send('Not Found');
-  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // Create HTTP Server

@@ -6,6 +6,7 @@ import { CreditCard, Calendar, MapPin, AlertCircle, ArrowLeft } from 'lucide-rea
 interface CheckoutProps {
   eventId: string;
   selectedSeatIds: string[];
+  waitlistId?: string | null;
   onBack: () => void;
   onBookingSuccess: () => void;
 }
@@ -13,11 +14,13 @@ interface CheckoutProps {
 export const Checkout: React.FC<CheckoutProps> = ({
   eventId,
   selectedSeatIds,
+  waitlistId,
   onBack,
   onBookingSuccess,
 }) => {
   const [event, setEvent] = useState<any>(null);
   const [seats, setSeats] = useState<any[]>([]);
+  const [resolvedSeatIds, setResolvedSeatIds] = useState<string[]>(selectedSeatIds);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -29,19 +32,31 @@ export const Checkout: React.FC<CheckoutProps> = ({
         const data = await apiRequest(`/api/events/${eventId}`);
         setEvent(data.event);
         
+        let activeSeatIds = [...selectedSeatIds];
+
+        if (activeSeatIds.length === 0 && waitlistId) {
+          const waitlistData = await apiRequest(`/api/waitlist/status/${eventId}`);
+          if (waitlistData?.onWaitlist && waitlistData.offeredSeat) {
+            activeSeatIds = [waitlistData.offeredSeat.id];
+            setResolvedSeatIds(activeSeatIds);
+          } else {
+            throw new Error('No active seat offer found for your waitlist spot.');
+          }
+        } else {
+          setResolvedSeatIds(activeSeatIds);
+        }
+
         // Find details of our selected seats
-        const selectedDetails = data.seatMap.filter((s: any) => selectedSeatIds.includes(s.id));
+        const selectedDetails = data.seatMap.filter((s: any) => activeSeatIds.includes(s.id));
         setSeats(selectedDetails);
 
         // Find the earliest expiration date among our holds
         const holds = selectedDetails.filter((s: any) => s.expiresAt);
         if (holds.length > 0) {
-          // Sort to find the earliest expiring hold
           const times = holds.map((s: any) => new Date(s.expiresAt).getTime());
           const minTime = Math.min(...times);
           setExpiresAt(new Date(minTime).toISOString());
         } else {
-          // Fallback: 10 minutes from now if no expiry returned
           setExpiresAt(new Date(Date.now() + 10 * 60 * 1000).toISOString());
         }
       } catch (err: any) {
@@ -52,7 +67,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
     };
 
     fetchCheckoutDetails();
-  }, [eventId, selectedSeatIds]);
+  }, [eventId, selectedSeatIds, waitlistId]);
 
   const handleConfirmBooking = async () => {
     setError('');
@@ -60,7 +75,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
     try {
       await apiRequest('/api/bookings/confirm', {
         method: 'POST',
-        body: JSON.stringify({ eventId, seatIds: selectedSeatIds }),
+        body: JSON.stringify({ eventId, seatIds: resolvedSeatIds }),
       });
       onBookingSuccess();
     } catch (err: any) {

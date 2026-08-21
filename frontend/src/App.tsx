@@ -16,12 +16,31 @@ export const App: React.FC = () => {
   
   // Navigation states
   const [currentEventId, setCurrentEventId] = useState<string | null>(null);
+  const [currentWaitlistId, setCurrentWaitlistId] = useState<string | null>(null);
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  // Parse waitlist checkout parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const eId = params.get('eventId');
+    const wId = params.get('waitlistId');
+    if (eId && wId) {
+      setCurrentEventId(eId);
+      setCurrentWaitlistId(wId);
+      setSelectedSeatIds([]);
+      setBookingSuccess(false);
+      setCurrentPage('checkout');
+    }
+  }, []);
+
   // Sync current page with auth status
   useEffect(() => {
-    if (!loading) {
+    // Only auto-route if we are not currently trying to access the direct checkout page from a waitlist link
+    const params = new URLSearchParams(window.location.search);
+    const hasWaitlistCheckout = params.get('eventId') && params.get('waitlistId');
+    
+    if (!loading && !hasWaitlistCheckout) {
       if (!user) {
         setCurrentPage('login');
       } else {
@@ -33,6 +52,9 @@ export const App: React.FC = () => {
           setCurrentPage('browse');
         }
       }
+    } else if (!loading && hasWaitlistCheckout && !user) {
+      // Force login if not authenticated on waitlist checkout access
+      setCurrentPage('login');
     }
   }, [user, loading]);
 
@@ -96,7 +118,11 @@ export const App: React.FC = () => {
           <Checkout 
             eventId={currentEventId} 
             selectedSeatIds={selectedSeatIds} 
-            onBack={() => setCurrentPage('event-details')} 
+            waitlistId={currentWaitlistId}
+            onBack={() => {
+              setCurrentWaitlistId(null);
+              setCurrentPage('event-details');
+            }} 
             onBookingSuccess={handleBookingSuccess}
           />
         )}

@@ -132,8 +132,8 @@ export async function reallocateSeat(eventId: string, seatId: string, category: 
   });
 
   if (success) {
-    // Send email to the selected user outside the transaction
-    const checkoutUrl = `http://localhost:3000/checkout?eventId=${eventId}&waitlistId=${success.waitlistId}`;
+    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+    const checkoutUrl = `${appUrl}/checkout?eventId=${eventId}&waitlistId=${success.waitlistId}`;
     sendWaitlistOfferEmail(
       success.email,
       success.name,
